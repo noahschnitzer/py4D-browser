@@ -136,8 +136,8 @@ def _process_EMPAD2_datacube(datacube, background_even=None, background_odd=None
     for rx,ry in py4DSTEM.tqdmnd(datacube.data.shape[0], datacube.data.shape[1]):
         data = datacube.data[rx,ry].view(np.uint32)
         analog = np.bitwise_and(data, 0x3fff).astype(np.float32)
-        digital = np.bitwise_and(data, 0x3fffc000).astype(np.float32) / 0x4000
-        gain_bit = np.bitwise_and(data, 0x80000000) / 0x80000000
+        digital = np.right_shift(np.bitwise_and(data, 0x3fffc000),14).astype(np.float32)
+        gain_bit = np.right_shift(np.bitwise_and(data, 0x80000000),31)
 
         # currently this does not do debouncing!
         if background_even is not None and background_odd is not None:

@@ -38,7 +38,7 @@ class DataViewer(QMainWindow):
         app.exec_()
     """
 
-    LOG_SCALE_MIN_VALUE = 1e-6
+    LOG_SCALE_MIN_VALUE = 1
 
     from py4D_browser.menu_actions import (
         load_file,
@@ -46,6 +46,7 @@ class DataViewer(QMainWindow):
         load_data_bin,
         load_data_mmap,
         load_data_EMPAD2,
+        load_data_background_EMPAD2,
         show_file_dialog,
     )
 
@@ -104,6 +105,10 @@ class DataViewer(QMainWindow):
         self.load_empad2_action = QAction("Load &EMPAD 2 Data..", self)
         self.load_empad2_action.triggered.connect(self.load_data_EMPAD2)
         self.file_menu.addAction(self.load_empad2_action)
+
+        self.load_empad2_bkg_action = QAction("Load EMPAD 2 Background &Data..", self)
+        self.load_empad2_bkg_action.triggered.connect(self.load_data_background_EMPAD2)
+        self.file_menu.addAction(self.load_empad2_bkg_action)
 
         # Scaling Menu
         self.scaling_menu = QMenu("&Scaling", self)

@@ -45,6 +45,7 @@ class DataViewer(QMainWindow):
         load_data_auto,
         load_data_bin,
         load_data_mmap,
+        load_data_EMPAD2,
         show_file_dialog,
     )
 
@@ -99,6 +100,10 @@ class DataViewer(QMainWindow):
         self.load_binned_action = QAction("Load Data &Binned...", self)
         self.load_binned_action.triggered.connect(self.load_data_bin)
         self.file_menu.addAction(self.load_binned_action)
+
+        self.load_empad2_action = QAction("Load &EMPAD 2 Data..", self)
+        self.load_empad2_action.triggered.connect(self.load_data_EMPAD2)
+        self.file_menu.addAction(self.load_empad2_action)
 
         # Scaling Menu
         self.scaling_menu = QMenu("&Scaling", self)

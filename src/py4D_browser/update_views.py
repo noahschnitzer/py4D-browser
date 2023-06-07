@@ -10,7 +10,12 @@ def update_real_space_view(self, reset=False):
     assert scaling_mode in ["Linear", "Log", "Square Root"], scaling_mode
 
     detector_shape = self.detector_shape_group.checkedAction().text().replace("&", "")
-    assert detector_shape in ["Point", "Rectangular", "Circle", "Annulus"], detector_shape
+    assert detector_shape in [
+        "Point",
+        "Rectangular",
+        "Circle",
+        "Annulus",
+    ], detector_shape
 
     detector_mode = self.detector_mode_group.checkedAction().text().replace("&", "")
     assert detector_mode in [
@@ -99,7 +104,7 @@ def update_real_space_view(self, reset=False):
         # Normalize coordinates
         xc = np.clip(xc, 0, self.datacube.Q_Nx - 1)
         yc = np.clip(yc, 0, self.datacube.Q_Ny - 1)
-        vimg = self.datacube.data[: ,: , xc, yc]
+        vimg = self.datacube.data[:, :, xc, yc]
 
         self.diffraction_space_view_text.setText(f"[{xc},{yc}]")
 
@@ -204,7 +209,9 @@ def update_diffraction_detector(self):
 
     # Remove existing detector
     if hasattr(self, "virtual_detector_point"):
-        self.diffraction_space_widget.view.scene().removeItem(self.virtual_detector_point)
+        self.diffraction_space_widget.view.scene().removeItem(
+            self.virtual_detector_point
+        )
     if hasattr(self, "virtual_detector_roi"):
         self.diffraction_space_widget.view.scene().removeItem(self.virtual_detector_roi)
     if hasattr(self, "virtual_detector_roi_inner"):
@@ -218,7 +225,9 @@ def update_diffraction_detector(self):
 
     # Rectangular detector
     if detector_shape == "Point":
-        self.virtual_detector_point = pg_point_roi(self.diffraction_space_widget.getView())
+        self.virtual_detector_point = pg_point_roi(
+            self.diffraction_space_widget.getView()
+        )
         self.virtual_detector_point.sigRegionChanged.connect(
             self.update_real_space_view
         )
@@ -279,11 +288,7 @@ def update_diffraction_detector(self):
         )
 
     else:
-        raise ValueError(
-            "Unknown detector shape! Got: {}".format(
-                detector_shape
-            )
-        )
+        raise ValueError("Unknown detector shape! Got: {}".format(detector_shape))
 
     self.update_real_space_view()
 

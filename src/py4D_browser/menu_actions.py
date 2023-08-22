@@ -76,7 +76,7 @@ def load_file(self, filepath, mmap=False, binning=1):
 
     from py4DSTEM.io.parsefiletype import _parse_filetype
 
-    if _parse_filetype(filepath) == "H5":
+    if _parse_filetype(filepath) in ("H5", "legacy", "emd"):
         datacubes = get_4D(h5py.File(filepath, "r"))
         print(f"Found {len(datacubes)} 4D datasets inside the HDF5 file...")
         if len(datacubes) >= 1:

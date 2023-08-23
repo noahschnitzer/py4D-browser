@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QFileDialog
 import h5py
 import numpy as np
 import os
+import pyqtgraph as pg
 
 # Load EMPAD2 calibration files
 cal_names = ["G1A", "G2A", "G1B", "G2B", "FFA", "FFB", "B2A", "B2B"]
@@ -147,48 +148,54 @@ def _load_EMPAD2_datacube(filepath, background_even=None, background_odd=None):
 
 def _process_EMPAD2_datacube(datacube, background_even=None, background_odd=None):
     # apply calibration to each pattern (this might be better batched differently, such as per row!)
-    for rx, ry in py4DSTEM.tqdmnd(datacube.data.shape[0], datacube.data.shape[1]):
-        data = datacube.data[rx, ry].view(np.uint32)
-        analog = np.bitwise_and(data, 0x3FFF).astype(np.float32)
-        digital = np.right_shift(np.bitwise_and(data, 0x3FFFC000), 14).astype(
-            np.float32
-        )
-        gain_bit = np.right_shift(np.bitwise_and(data, 0x80000000), 31)
+    with pg.ProgressDialog("Opening EMPAD2 Data...", 0, datacube.data.shape[0] * datacube.data.shape[1]) as dlg:
+        for rx, ry in py4DSTEM.tqdmnd(datacube.data.shape[0], datacube.data.shape[1]):
+            # progress bar stuff
+            dlg.setValue(np.ravel_multi_index([rx,ry], datacube.data.shape[:2]))
+            if dlg.wasCanceled():
+                    raise Exception("Processing canceled by user")
 
-        # currently this does not do debouncing!
-        if background_even is not None and background_odd is not None:
-            if ry % 2:
-                # odd frame
-                datacube.data[rx, ry] = _FFB * (
-                    (
+            data = datacube.data[rx, ry].view(np.uint32)
+            analog = np.bitwise_and(data, 0x3FFF).astype(np.float32)
+            digital = np.right_shift(np.bitwise_and(data, 0x3FFFC000), 14).astype(
+                np.float32
+            )
+            gain_bit = np.right_shift(np.bitwise_and(data, 0x80000000), 31)
+
+            # currently this does not do debouncing!
+            if background_even is not None and background_odd is not None:
+                if ry % 2:
+                    # odd frame
+                    datacube.data[rx, ry] = _FFB * (
+                        (
+                            analog * (1 - gain_bit)
+                            + _G1B * (analog - _B2B) * gain_bit
+                            + _G2B * digital
+                        )
+                        - background_odd
+                    )
+                else:
+                    # even frame
+                    datacube.data[rx, ry] = _FFA * (
+                        (
+                            analog * (1 - gain_bit)
+                            + _G1A * (analog - _B2A) * gain_bit
+                            + _G2A * digital
+                        )
+                        - background_even
+                    )
+            else:
+                if ry % 2:
+                    # odd frame
+                    datacube.data[rx, ry] = (
                         analog * (1 - gain_bit)
                         + _G1B * (analog - _B2B) * gain_bit
                         + _G2B * digital
                     )
-                    - background_odd
-                )
-            else:
-                # even frame
-                datacube.data[rx, ry] = _FFA * (
-                    (
+                else:
+                    # even frame
+                    datacube.data[rx, ry] = (
                         analog * (1 - gain_bit)
                         + _G1A * (analog - _B2A) * gain_bit
                         + _G2A * digital
                     )
-                    - background_even
-                )
-        else:
-            if ry % 2:
-                # odd frame
-                datacube.data[rx, ry] = (
-                    analog * (1 - gain_bit)
-                    + _G1B * (analog - _B2B) * gain_bit
-                    + _G2B * digital
-                )
-            else:
-                # even frame
-                datacube.data[rx, ry] = (
-                    analog * (1 - gain_bit)
-                    + _G1A * (analog - _B2A) * gain_bit
-                    + _G2A * digital
-                )

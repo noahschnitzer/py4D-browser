@@ -79,7 +79,7 @@ class DataViewer(QMainWindow):
         self.setup_menus()
         self.setup_views()
 
-        self.resize(800, 400)
+        # self.resize(800, 400)
 
         self.show()
 

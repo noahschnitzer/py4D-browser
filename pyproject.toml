@@ -23,6 +23,10 @@ dependencies = [
   "pyqtgraph >= 0.11",
 ]
 
+[tool.setuptools.package-data]
+"*" = ["*.r32"]
+
+
 [project.scripts]
 py4DGUI = "py4D_browser.runGUI:launch"
 

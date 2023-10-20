@@ -52,6 +52,9 @@ def load_data_EMPAD2(
         self.datacube = _load_EMPAD2_datacube(filepath)
         self.setWindowTitle(filepath)
 
+    #self.datacube.data = np.swapaxes(self.datacube.data,0,2)
+    #self.datacube.data = np.swapaxes(self.datacube.data,1,3)
+    #self.datacube.swap_RQ()
     self.update_diffraction_space_view(reset=True)
     self.update_real_space_view(reset=True)
 
@@ -199,3 +202,11 @@ def _process_EMPAD2_datacube(datacube, background_even=None, background_odd=None
                         + _G1A * (analog - _B2A) * gain_bit
                         + _G2A * digital
                     )
+
+# Swaps Rx,Ry and Qx,Qy axes of datacube, allowing non-point detectors to be used 
+# in either real or detector space. Views are updated but no UI elements are updated.
+def swap_axes(self):
+    self.datacube.swap_RQ()
+    # seems to not mess up b/c if reset = False?
+    self.update_diffraction_space_view(reset=False) 
+    self.update_real_space_view(reset=False)

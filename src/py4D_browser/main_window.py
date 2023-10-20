@@ -48,6 +48,7 @@ class DataViewer(QMainWindow):
         load_data_EMPAD2,
         load_data_background_EMPAD2,
         show_file_dialog,
+        swap_axes
     )
 
     from py4D_browser.update_views import (
@@ -109,6 +110,13 @@ class DataViewer(QMainWindow):
         self.load_empad2_bkg_action = QAction("Load EMPAD 2 Background &Data..", self)
         self.load_empad2_bkg_action.triggered.connect(self.load_data_background_EMPAD2)
         self.file_menu.addAction(self.load_empad2_bkg_action)
+
+        # new File... menu option for swapping pattern / virtual image axes
+        self.swap_axes_action = QAction("Swap &Axes..", self)
+        self.swap_axes_action.triggered.connect(self.swap_axes)
+        self.file_menu.addAction(self.swap_axes_action)
+
+
 
         # Scaling Menu
         self.scaling_menu = QMenu("&Scaling", self)
